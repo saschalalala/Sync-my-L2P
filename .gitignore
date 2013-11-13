@@ -2,3 +2,4 @@ Sync-My-L2P.pro.user
 *.o
 Makefile
 Sync-My-L2P
+moc_*
