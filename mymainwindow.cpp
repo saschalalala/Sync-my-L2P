@@ -21,6 +21,9 @@
 // Hauptadresse des Sharepointdienstes
 QString MainURL = "https://www2.elearning.rwth-aachen.de";
 
+QString confFolder = "Sync-My-L2P";
+QString confFile = "Sync-My-L2P";
+
 MyMainWindow::MyMainWindow(QWidget *parent) :
     QMainWindow(parent, Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint
                 | Qt::WindowMinimizeButtonHint),
@@ -55,7 +58,7 @@ MyMainWindow::MyMainWindow(QWidget *parent) :
     move((desktopRect.width()-windowRect.width())/2, (desktopRect.height()-windowRect.height())/2);
 
     // Ausführen des Autologins, falls gewünscht
-    QSettings settings("Robert K.", "L2P-Tool++");
+    QSettings settings(confFolder, confFile);
     if (settings.value("login/autoLogin").toBool())
     {
         autoSynchronize = ui->autoSyncCheck->isChecked();
@@ -68,7 +71,7 @@ MyMainWindow::MyMainWindow(QWidget *parent) :
 void MyMainWindow::loadSettings()
 {
     // Laden von gespeicherten Einstellungen
-    QSettings settings("Robert K.", "L2P-Tool++");
+    QSettings settings(confFolder, confFile);
 
     // Laden der Logindaten
     if (settings.value("login/save").toBool())
@@ -131,7 +134,7 @@ MyMainWindow::~MyMainWindow()
 void MyMainWindow::saveSettings()
 {
     // Speichern aller Einstellungen
-    QSettings settings("Robert K.", "L2P-Tool++");
+    QSettings settings(confFolder, confFile);
     settings.setValue("login/save", ui->DatenSpeichern->isChecked());
     if (ui->DatenSpeichern->isChecked())
     {
@@ -265,7 +268,7 @@ void MyMainWindow::veranstaltungenAbgerufen(QNetworkReply* reply)
 void MyMainWindow::dateienAktualisieren()
 {
     // Prüfen, ob überhaupt Dokumentorte ausgewählt wurden
-    if (!ui->documentsCheck->isChecked() && !ui->structeredDocumentsCheck->isChecked() && !ui->exercisesCheck->isChecked())
+    if (!ui->documentsCheck->isChecked() && !ui->structeredDocumentsCheck->isChecked() && !ui->exercisesCheck->isChecked() && !ui->sharedFilesCheck->isChecked())
     {
         // Freischalten von Schaltflächen
         ui->Aktualisieren->setEnabled(true);
@@ -304,11 +307,13 @@ void MyMainWindow::dateienAktualisieren()
             request.setRawHeader("Depth", "infinity");
             request.setRawHeader("Content-Type", "text/xml; charset=\"utf-8\"");
             request.setRawHeader("Content-Length", "0");
+            /*
             QList<QByteArray> HeaderList = request.rawHeaderList();
             foreach(QByteArray Header, HeaderList)
             {
                //qDebug(Header);
             }
+            */
 
             // Einfügen und Absenden des Requests
             replies.insert(manager->sendCustomRequest(request, "PROPFIND"), aktuelleStruktur);
@@ -346,6 +351,18 @@ void MyMainWindow::dateienAktualisieren()
 
             // Einfügen und Absenden des Requests
             replies.insert(manager->sendCustomRequest(request2, "PROPFIND"), aktuelleStruktur);
+        }
+
+        //Erstellen des Requests fuer Shared Materials
+        if (ui->sharedFilesCheck->isChecked())
+        {
+            QNetworkRequest request(QUrl(aktuelleStruktur->data(urlRole).toUrl().toString() % "/shared/documents/"));
+            request.setRawHeader("Depth", "infinity");
+            request.setRawHeader("Content-Type", "text/xml; charset=\"utf-8\"");
+            request.setRawHeader("Content-Length", "0");
+
+            // Einfügen und Absenden des Requests
+            replies.insert(manager->sendCustomRequest(request, "PROPFIND"), aktuelleStruktur);
         }
     }
 
@@ -447,8 +464,7 @@ void MyMainWindow::dateienAbgerufen(QNetworkReply* reply)
                         path.append(name);
                         path.remove(0,8);
 
-                        if(QFile::exists(path))
-                        {
+                        if(QFile::exists(path)){
                             newFile->setData(SYNCHRONISED, synchronisedRole);
                         }
 
@@ -457,8 +473,7 @@ void MyMainWindow::dateienAbgerufen(QNetworkReply* reply)
                     }
                     // 2. Fall: Ordner/Veranstaltung
                     // Ausschließen der Ordnernamen "documents" und "structured"
-                    else if (name != "documents" && name != "structured" && !url.toString().contains("exerciseCourse"))
-                    {
+                    else if (name != "documents" && name != "structured" && !url.toString().contains("exerciseCourse")){
                         // Erstellen eines neuen Ordners
                         Structureelement* neuerOrdner = new Structureelement(name, url, directoryItem);
 
@@ -481,23 +496,26 @@ void MyMainWindow::dateienAbgerufen(QNetworkReply* reply)
             }
 
             // Einlesen der Elementeigenschaften
-            else if (Reader.isCharacters() && !Reader.isWhitespace())
-            {
+            else if (Reader.isCharacters() && !Reader.isWhitespace()){
                 // URL
-                if(currentXmlTag == "href")
+                if(currentXmlTag == "href"){
                     url.setUrl(Reader.text().toString());
+                }
 
                 // Name
-                else if (currentXmlTag == "displayname")
+                else if (currentXmlTag == "displayname"){
                     name = Reader.text().toString();
+                }
 
                 // Größe
-                else if (currentXmlTag == "getcontentlength")
+                else if (currentXmlTag == "getcontentlength"){
                     size = Reader.text().toString().toInt();
+                }
 
                 // Modifizierungsdatum
-                else if (currentXmlTag == "getlastmodified")
+                else if (currentXmlTag == "getlastmodified"){
                     time = Reader.text().toString();
+                }
             }
         }
 
@@ -507,8 +525,7 @@ void MyMainWindow::dateienAbgerufen(QNetworkReply* reply)
     }
     // Ausgabe einer Fehlermeldung bei Fehlern
     // Ignoriere "ContentNotFoundError", der bei leeren Veranstaltungen auftritt
-    else if(reply->error() != QNetworkReply::ContentNotFoundError)
-    {
+    else if(reply->error() != QNetworkReply::ContentNotFoundError){
         QMessageBox messageBox;
         messageBox.setText("Beim Abruf des Inhalts einer Veranstaltung ist ein Fehler aufgetreten");
         messageBox.setInformativeText(reply->errorString());
@@ -530,8 +547,7 @@ void MyMainWindow::dateienAbgerufen(QNetworkReply* reply)
     reply->deleteLater();
 
     // Prüfen, ob alle Antworten bearbeitet wurden -> Replies.empty() = TRUE
-    if(replies.empty())
-    {
+    if(replies.empty()){
         QObject::disconnect(manager, SIGNAL(finished(QNetworkReply*)),
                             this, SLOT(dateienAbgerufen(QNetworkReply*)));
 
@@ -543,17 +559,14 @@ void MyMainWindow::dateienAbgerufen(QNetworkReply* reply)
         ui->centralwidget-> setEnabled(true);
 
         // Falls bisher noch nicht synchronisiert wurde und Synchronisation beim Start aktiviert wurde
-        if (autoSynchronize)
-        {
+        if (autoSynchronize){
             autoSynchronize = false;
             on_synchronisieren_clicked();
         }
-
     }
 }
 
-void MyMainWindow::on_ausschliessen_clicked()
-{
+void MyMainWindow::on_ausschliessen_clicked(){
     // Holen der ausgewählten Dateien
     QModelIndexList ausgewaehlt = proxyModel.mapSelectionToSource(ui->treeView->selectionModel()->selection()).indexes();
 
@@ -589,9 +602,11 @@ void MyMainWindow::on_ausschliessen_clicked()
                 aktuelleStruktur->setData(false, includeRole);
                 //aktuelleStruktur = (Strukturelement*) aktuelleStruktur->parent();
             }
+            /* Else what?
             else
             {
             }
+            */
         }
     }
 
@@ -679,7 +694,7 @@ void MyMainWindow::on_Login_clicked()
         ui->DatenSpeichern->setEnabled(true);
 
         // Setzen des buttons je nach Einstellung
-        QSettings einstellungen("Robert K.", "L2P-Tool++");
+        QSettings einstellungen(confFolder, confFile);
 //        ui->DatenSpeichern->setChecked(einstellungen.value("login/save").toBool());
         ui->AutoLogin->setChecked(einstellungen.value("login/autoLogin").toBool());
         ui->autoSyncCheck->setChecked(einstellungen.value("autoSync").toBool());

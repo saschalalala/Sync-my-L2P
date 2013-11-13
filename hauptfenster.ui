@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>698</width>
-    <height>482</height>
+    <width>702</width>
+    <height>580</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -34,7 +34,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -620,19 +620,6 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QCheckBox" name="exercisesCheck">
-             <property name="statusTip">
-              <string>Einschließen von &quot;Übungen&quot; in die Synchronisation</string>
-             </property>
-             <property name="text">
-              <string>&quot;Übungen&quot; durchsuchen</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="1">
             <widget class="QCheckBox" name="alteSemesterCheck">
              <property name="statusTip">
@@ -672,6 +659,26 @@
              </property>
              <property name="text">
               <string>Synchronisation beim Programmstart</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QCheckBox" name="exercisesCheck">
+             <property name="statusTip">
+              <string>Einschließen von &quot;Übungen&quot; in die Synchronisation</string>
+             </property>
+             <property name="text">
+              <string>&quot;Übungen&quot; durchsuchen</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QCheckBox" name="sharedFilesCheck">
+             <property name="text">
+              <string>Gemeinsame Materialien durchsuchen</string>
              </property>
             </widget>
            </item>

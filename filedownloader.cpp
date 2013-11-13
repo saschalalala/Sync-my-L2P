@@ -85,6 +85,7 @@ int FileDownloader::startNextDownload(QString filename, QString event, QString v
     QObject::connect(reply, SIGNAL(finished()), this, SLOT(finishedSlot()));
 
     // Starten der Schleife, die vor sich hinläuft, bis der Download abgeschlossen ist
+    // Weshalb tut sie das?
     return(loop.exec());
 }
 
