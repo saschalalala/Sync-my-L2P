@@ -91,38 +91,43 @@ void MyMainWindow::loadSettings()
     // Falls die Einstellungen nicht vorhanden sein sollten, setze Defaultwert
     ui->autoSyncCheck->setChecked(settings.value("autoSync").toBool());
 
-    if (settings.contains("documents"))
+    if (settings.contains("documents")){
         ui->documentsCheck->setChecked(settings.value("documents").toBool());
-    else
+    }
+    else{
         ui->documentsCheck->setChecked(true);
+    }
 
 
-    if (settings.contains("structuredDocuments"))
+    if (settings.contains("structuredDocuments")){
         ui->structeredDocumentsCheck->setChecked(settings.value("structuredDocuments").toBool());
-    else
+    }
+    else{
         ui->structeredDocumentsCheck->setChecked(true);
+    }
 
 
-    if (settings.contains("exercises"))
+    if (settings.contains("exercises")){
         ui->exercisesCheck->setChecked(settings.value("exercises").toBool());
-    else
+    }
+    else{
         ui->exercisesCheck->setChecked(true);
+    }
 
 
-    if (settings.contains("maxSizeCB"))
-    {
+    if (settings.contains("maxSizeCB")){
         ui->maxSizeCheckBox->setChecked(settings.value("maxSizeCB").toBool());
         proxyModel.setMaximumSizeFilter(settings.value("maxSizeCB").toBool());
     }
 
 
-    if (settings.contains("maxSizeB"))
-    {
+    if (settings.contains("maxSizeB")){
         ui->maxSizeBox->setValue(settings.value("maxSizeB").toInt());
         proxyModel.setMaximumSize(settings.value("maxSizeB").toInt());
     }
-    else
+    else{
         ui->maxSizeBox->setValue(10);
+    }
 }
 
 MyMainWindow::~MyMainWindow()
@@ -185,8 +190,7 @@ void MyMainWindow::on_Aktualisieren_clicked()
 void MyMainWindow::veranstaltungenAbgerufen(QNetworkReply* reply)
 {
     // Prüfen auf Fehler beim Abruf
-    if(!reply->error())
-    {
+    if(!reply->error()){
         // Auslesen der kompletten Antwort
         QString replyText = reply->readAll();
 
@@ -209,8 +213,7 @@ void MyMainWindow::veranstaltungenAbgerufen(QNetworkReply* reply)
         QString veranstaltungName;
 
         // Durchsuchen der gesamten Antwort nach Veranstaltungen
-        while((neuePosition=regExp->indexIn(replyText, altePosition)) != -1)
-        {            
+        while((neuePosition=regExp->indexIn(replyText, altePosition)) != -1){            
             urlRaum = regExp->cap(1);
             veranstaltungName = regExp->cap(2);
             veranstaltungName = veranstaltungName.replace(*escapeRegExp, "").trimmed();
@@ -234,8 +237,7 @@ void MyMainWindow::veranstaltungenAbgerufen(QNetworkReply* reply)
         delete regExp;
         delete escapeRegExp;
     }
-    else
-    {
+    else{
         // Falls ein Fehler aufgetreten sein sollte, Ausgabe dessen
         QMessageBox messageBox;
         messageBox.setText("Beim Abruf der Veranstaltungen ist ein Fehler aufgetreten");
@@ -290,8 +292,7 @@ void MyMainWindow::dateienAktualisieren()
     // Übungsbetrieb Blätter
     // "https://www2.elearning.rwth-aachen.de/ss11/11ss-33668/exerciseCourse/AssignmentDocuments/
 
-    for(int i= 0; i < rowCount; i++)
-    {
+    for(int i= 0; i < rowCount; i++){
         // Holen der aktuellen Veranstaltung
         aktuelleStruktur = (Structureelement*) itemModel.item(i);
 
@@ -320,8 +321,7 @@ void MyMainWindow::dateienAktualisieren()
         }
 
         // Ausführen des Requests für "Strukturierte Materialien"
-        if (ui->structeredDocumentsCheck->isChecked())
-        {
+        if (ui->structeredDocumentsCheck->isChecked()){
             // Erstellen eines WebDav Requests
             QNetworkRequest request2(QUrl(aktuelleStruktur->data(urlRole).toUrl().toString() % "/materials/structured/"));
             request2.setRawHeader("Depth", "infinity");
@@ -332,8 +332,7 @@ void MyMainWindow::dateienAktualisieren()
             replies.insert(manager->sendCustomRequest(request2, "PROPFIND"), aktuelleStruktur);
         }
 
-        if (ui->exercisesCheck->isChecked())
-        {
+        if (ui->exercisesCheck->isChecked()){
             // Erstellen eines WebDav Requests
             QNetworkRequest request(QUrl(aktuelleStruktur->data(urlRole).toUrl().toString() % "/exerciseCourse/SampleSolutions/"));
             request.setRawHeader("Depth", "infinity");
@@ -354,8 +353,7 @@ void MyMainWindow::dateienAktualisieren()
         }
 
         //Erstellen des Requests fuer Shared Materials
-        if (ui->sharedFilesCheck->isChecked())
-        {
+        if (ui->sharedFilesCheck->isChecked()){
             QNetworkRequest request(QUrl(aktuelleStruktur->data(urlRole).toUrl().toString() % "/shared/documents/"));
             request.setRawHeader("Depth", "infinity");
             request.setRawHeader("Content-Type", "text/xml; charset=\"utf-8\"");
@@ -677,8 +675,7 @@ void MyMainWindow::on_Login_clicked()
 
     // Testen des Logins
     // 1.Fall: Login erfolgreich
-    if(LoginTest->exec())
-    {
+    if(LoginTest->exec()){
         // Ã„ndern des Schreibrechts der LineEdits
         ui->BenutzernameFeld->setReadOnly(true);
         ui->PasswortFeld->setReadOnly(true);

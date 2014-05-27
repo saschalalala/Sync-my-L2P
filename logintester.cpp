@@ -22,13 +22,7 @@
 #include <QFile>
 
 
-LoginTester::LoginTester(QString username,
-                         QString password,
-                         int maxcount,
-                         QWidget *parent) :
-    QDialog(parent, Qt::FramelessWindowHint),
-    ui(new Ui::LoginTester)
-{
+LoginTester::LoginTester(QString username, QString password,int maxcount, QWidget *parent):QDialog(parent, Qt::FramelessWindowHint), ui(new Ui::LoginTester){
     ui->setupUi(this);
     ui->button->hide();
 
@@ -70,8 +64,7 @@ LoginTester::LoginTester(QString username,
 
     QSslConfiguration newSslConfiguration2 = QSslConfiguration::defaultConfiguration();
     newCertificates2 = newSslConfiguration2.caCertificates();
-    foreach (QSslCertificate c, newCertificates2)
-    {
+    foreach (QSslCertificate c, newCertificates2){
         QStringList list = c.subjectInfo(QSslCertificate::CommonName);
         for(QStringList::iterator i = list.begin(); i != list.end(); i++){
             qDebug(i->toLatin1());
@@ -95,11 +88,9 @@ void LoginTester::authenticationSlot(QNetworkReply* , QAuthenticator* authentica
 {
     qDebug("authenticationSlot call");
     // Logindaten nur ausfüllen, falls nicht mehr als die maximale Anzahl an Versuchen durchgeführt wurden
-    if (tryCounter < maxTries)
-    {
+    if (tryCounter < maxTries){
         authenticator->setUser(username);
         authenticator->setPassword(password);
-
     }
 
     // Erhöhen des Zählers nach jedem Versuch
@@ -162,8 +153,7 @@ void LoginTester::finishedSlot(QNetworkReply* reply)
         checkCertValidity(localCertificate);
     }
     // Fehlerbehandlung
-    if (reply->error())
-    {
+    if (reply->error()){
         QMessageBox messageBox;
         messageBox.setText("Login fehlgeschlagen");
         messageBox.setInformativeText(QString(reply->errorString()));
@@ -172,6 +162,7 @@ void LoginTester::finishedSlot(QNetworkReply* reply)
         messageBox.exec();
         reject();
     }
-    else
+    else{
         accept();
+    }
 }
